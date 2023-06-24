@@ -2,9 +2,9 @@ version: "3.9"
 
 services:
   front:
-    image: rishemgulov/skypro_rishemgulov
+    image: sermalenk/skypro-front:lesson-34
     ports:
-     - 8080:80
+     - 8000:80
     depends_on:
       - api
   api:
@@ -16,21 +16,29 @@ services:
       migrations:
         condition: service_completed_successfully
     volumes:
-      - ./.docker_env:/app/,env
+      - ./.docker_env:/app/.default_env
   migrations:
     build:
       context: .
     depends_on:
-
-
-  pg:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./docker_env:/app/.default_env
+    command: ["sh", "-c", "sleep 5 && python manage.py migrate"]
+  postgres:
     image: postgres:latest
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: hbpdfy1999
-      POSTGRES_DB: diplom_db
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      HOST: postgres
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
