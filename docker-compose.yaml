@@ -1,40 +1,14 @@
 version: "3.9"
 
 services:
-  front:
-    image: sermalenk/skypro-front:lesson-34
-    ports:
-     - 8000:80
-    depends_on:
-      - api
-  api:
-    build:
-      context: .
-    depends_on:
-      postgres:
-        condition: service_healthy
-      migrations:
-        condition: service_completed_successfully
-    volumes:
-      - ./.docker_env:/app/.default_env
-  migrations:
-    build:
-      context: .
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      - ./docker_env:/app/.default_env
-    command: ["sh", "-c", "sleep 5 && python manage.py migrate"]
   postgres:
     image: postgres:latest
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-      HOST: postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
       interval: 5s
       timeout: 5s
       retries: 5
@@ -42,3 +16,37 @@ services:
       - "5432:5432"
     volumes:
       - ./pg_data:/var/lib/postgresql/data
+  migrations:
+    build:
+      context: .
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: python manage.py migrate
+  api:
+    build:
+      context: .
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+      DEBUG: false
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./todolist:/app/todolist
+  front:
+    image: sermalenk/skypro-front:lesson-34
+    restart: on-failure
+    ports:
+     - "80:80"
+    depends_on:
+      api:
+        condition: service_started
