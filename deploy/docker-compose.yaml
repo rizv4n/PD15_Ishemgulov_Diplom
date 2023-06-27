@@ -41,5 +41,5 @@ services:
       api:
         condition: service_started
     volumes:
-      - .nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ./todolist/static:/usr/share/nginx/html/static/
