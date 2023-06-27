@@ -12,39 +12,26 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    ports:
-      - "5432:5432"
     volumes:
       - ./pg_data:/var/lib/postgresql/data
+
   migrations:
-    image: rizv4n/todolist:$GITHUB_REF_NAME-$GITHUB_RUN_ID
+    image: ${DOCKER_USERNAME}/todolist:latest
     env_file: .env
-    environment:
-      POSTGRES_HOST: db
     depends_on:
       postgres:
-        condition: "service_healthy"
-    healthcheck:
-      test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
-      interval: 30s
-      timeout: 5s
-      retries: 5
-    command: python manage.py migrate
+        condition: service_healthy
+    command: python todolist/manage.py migrate
+
   api:
-    image: rizv4n/todolist:$GITHUB_REF_NAME-$GITHUB_RUN_ID
+    image: ${DOCKER_USER}/todolist:latest
     env_file: .env
-    environment:
-      POSTGRES_HOST: db
     depends_on:
       postgres:
-        condition: "service_healthy"
+        condition: service_healthy
       migrations:
-        condition: "service_completed_successfully"
-    healthcheck:
-      test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
-      interval: 10s
-      timeout: 5s
-      retries: 5
+        condition: service_completed_successfully
+
   front:
     image: sermalenk/skypro-front:lesson-34
     restart: on-failure
@@ -53,3 +40,6 @@ services:
     depends_on:
       api:
         condition: service_started
+    volumes:
+      - .nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./todolist/static:/usr/share/nginx/html/static/
