@@ -16,22 +16,24 @@ services:
       - "5432:5432"
     volumes:
       - ./pg_data:/var/lib/postgresql/data
+
   migrations:
     build:
       context: .
     env_file: .env
     environment:
-      POSTGRES_HOST: db
+      POSTGRES_HOST: postgres
     depends_on:
       postgres:
         condition: service_healthy
-    command: python manage.py migrate
+    command: python todolist/manage.py migrate
+
   api:
     build:
       context: .
     env_file: .env
     environment:
-      POSTGRES_HOST: db
+      POSTGRES_HOST: postgres
       DEBUG: false
     depends_on:
       postgres:
@@ -41,7 +43,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./todolist:/app/todolist
+      - ./todolist:/app
+
   front:
     image: sermalenk/skypro-front:lesson-34
     restart: on-failure
@@ -50,3 +53,6 @@ services:
     depends_on:
       api:
         condition: service_started
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./todolist/static:/usr/share/nginx/html/static/
