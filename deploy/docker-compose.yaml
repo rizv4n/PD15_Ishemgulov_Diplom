@@ -31,6 +31,7 @@ services:
         condition: service_healthy
       migrations:
         condition: service_completed_successfully
+    command: ls -la
 
   front:
     image: sermalenk/skypro-front:lesson-34
