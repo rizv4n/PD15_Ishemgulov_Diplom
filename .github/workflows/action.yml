@@ -47,7 +47,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
-          script:
+          script: |
             cd todolist_conf
             docker-compose pull
             docker-compose down
@@ -58,5 +58,5 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
-          script:
+          script: |
             docker system prune -f -a
