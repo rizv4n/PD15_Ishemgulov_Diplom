@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  postgres:
+  db:
     image: postgres:latest
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -19,19 +19,19 @@ services:
     image: ${DOCKER_USERNAME}/todolist:latest
     env_file: .env
     depends_on:
-      postgres:
+      db:
         condition: service_healthy
-    command: python todolist/manage.py migrate
+    command: python manage.py migrate
 
   api:
     image: ${DOCKER_USERNAME}/todolist:latest
     env_file: .env
     depends_on:
-      postgres:
+      db:
         condition: service_healthy
       migrations:
         condition: service_completed_successfully
-    command: ls -la
+    command: python manage.py runserver 0.0.0.0:8000
 
   front:
     image: sermalenk/skypro-front:lesson-34
@@ -43,4 +43,3 @@ services:
         condition: service_started
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./todolist/static:/usr/share/nginx/html/static/
