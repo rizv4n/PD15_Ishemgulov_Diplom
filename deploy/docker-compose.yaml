@@ -34,7 +34,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
 
   front:
-    image: sermalenk/skypro-front:lesson-34
+    image: sermalenk/skypro-front:lesson-35
     restart: on-failure
     ports:
      - "80:80"

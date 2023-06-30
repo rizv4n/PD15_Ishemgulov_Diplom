@@ -1,4 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -10,41 +12,40 @@ from core.serializers import UserRegistrationSerializer, UserRetrieveSerializer,
 
 
 class UserCreateView(CreateAPIView):
-    model = User
     serializer_class = UserRegistrationSerializer
+    queryset = User.objects.all()
 
 
 class UserLoginView(APIView):
     def post(self, request, *args, **kwargs):
-        username = request.data['username']
-        password = request.data['password']
-        print(username, password)
+        username = request.data.get('username')
+        password = request.data.get('password')
         user = authenticate(request, username=username, password=password)
-        print(user)
+
         if user is not None:
             login(request, user)
-            return Response(status=status.HTTP_200_OK)
+            return Response(UserRetrieveSerializer(user).data, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class UserRetrieveUpdateView(RetrieveUpdateAPIView):
     serializer_class = UserRetrieveSerializer
-    queryset = User.objects.all()
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
 
-    # def delete(self, request, *args, **kwargs):
-    #     logout(request)
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, *args, **kwargs):
+        logout(request)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UpdatePasswordView(UpdateAPIView):
     serializer_class = UpdatePasswordSerializer
-    queryset = User.objects.all()
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['put']
 
     def get_object(self):
         return self.request.user

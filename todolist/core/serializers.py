@@ -14,27 +14,28 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         validators=[UniqueValidator(queryset=User.objects.all(),
                                     message='Email is already in use')]
     )
-    password_repeat = serializers.CharField(write_only=True)
+    password_repeat = serializers.CharField(max_length=128,
+                                            write_only=True)
 
     class Meta:
         model = User
         fields = '__all__'
 
+    def validate_password_repeat(self, value):
+        data = self.initial_data
+        if data['password'] != data['password_repeat']:
+            raise serializers.ValidationError('Passwords dont match')
+        return value
+
     def validate_password(self, value):
         validate_password(value)
         return value
 
-    def create(self, validate_data):
-        password = validate_data.pop('password')
-        password_repeat = validate_data.pop('password_repeat')
-
-        if password != password_repeat:
-            raise serializers.ValidationError('Passwords dont match')
-
-        user = super().create(validate_data)
-        user.set_password(user.password)
+    def create(self, validated_data):
+        del validated_data['password_repeat']
+        user = super().create(validated_data)
+        user.set_password(validated_data['password'])
         user.save()
-
         return user
 
 
@@ -66,7 +67,11 @@ class UpdatePasswordSerializer(serializers.ModelSerializer):
         return value
 
     def validate_old_password(self, old_password):
-        return self.context['request'].user.check_password(old_password)
+        check = self.context['request'].user.check_password(old_password)
+        if check:
+            return old_password
+        else:
+            raise serializers.ValidationError('Old password incorrect')
 
     def save(self, **kwargs):
         user = self.instance
