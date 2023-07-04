@@ -1,3 +1,4 @@
+from django.core.validators import MinLengthValidator
 from django.db import models
 from goals.models import DatesModelMixin
 
@@ -24,10 +25,10 @@ class Goal(DatesModelMixin):
         verbose_name = "Цель"
         verbose_name_plural = "Цель"
 
-    title = models.CharField(verbose_name="Название", max_length=255)
+    title = models.CharField(verbose_name="Заголовок", max_length=255, validators=[MinLengthValidator(1)])
     user = models.ForeignKey(User, verbose_name="Автор", on_delete=models.PROTECT)
     category = models.ForeignKey(GoalCategory, verbose_name="Категория", on_delete=models.PROTECT)
-    description = models.CharField(verbose_name="Описание", max_length=255)
+    description = models.CharField(verbose_name="Описание", max_length=255, null=True, blank=True)
     status = models.PositiveSmallIntegerField(
         verbose_name="Статус",
         choices=Status.choices,
@@ -38,7 +39,7 @@ class Goal(DatesModelMixin):
         choices=Priority.choices,
         default=Priority.medium
     )
-    deadline = models.DateTimeField(verbose_name="Дата дедлайна")
+    deadline = models.DateTimeField(verbose_name="Дата выполнения", null=True, blank=True)
     created = models.DateTimeField(verbose_name="Дата создания")
     updated = models.DateTimeField(verbose_name="Дата последнего обновления")
 

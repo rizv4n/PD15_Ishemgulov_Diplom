@@ -1,3 +1,4 @@
+from django.core.validators import MinLengthValidator
 from django.db import models
 from goals.models import DatesModelMixin
 
@@ -11,7 +12,7 @@ class GoalComment(DatesModelMixin):
         verbose_name_plural = "Комментарии"
 
     goal = models.ForeignKey(Goal, verbose_name="Цель", on_delete=models.PROTECT)
-    text = models.CharField(verbose_name="Текст комментария", max_length=255)
+    text = models.CharField(verbose_name="Текст", validators=[MinLengthValidator(1)])
     user = models.ForeignKey(User, verbose_name="Автор", on_delete=models.PROTECT)
     created = models.DateTimeField(verbose_name="Дата создания")
     updated = models.DateTimeField(verbose_name="Дата последнего обновления")
