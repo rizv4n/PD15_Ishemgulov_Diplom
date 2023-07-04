@@ -39,7 +39,7 @@ class Goal(DatesModelMixin):
         choices=Priority.choices,
         default=Priority.medium
     )
-    deadline = models.DateTimeField(verbose_name="Дата выполнения", null=True, blank=True)
+    due_date = models.DateTimeField(verbose_name="Дата выполнения", null=True, blank=True)
     created = models.DateTimeField(verbose_name="Дата создания")
     updated = models.DateTimeField(verbose_name="Дата последнего обновления")
 
