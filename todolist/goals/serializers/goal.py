@@ -25,7 +25,7 @@ class GoalCreateSerializer(serializers.ModelSerializer):
 
 class GoalSerializer(serializers.ModelSerializer):
     user = UserRetrieveSerializer(read_only=True)
-    category = serializers.PrimaryKeyRelatedField(queryset=GoalCategory.objects.all(), source='category.title')
+    # category = serializers.PrimaryKeyRelatedField(queryset=GoalCategory.objects.all(), source='category.title')
 
     class Meta:
         model = Goal
