@@ -23,7 +23,7 @@ class GoalCategoryListView(ListAPIView):
         filters.SearchFilter,
     ]
     ordering_fields = ["board", "title", "created"]
-    ordering = ["title"]
+    ordering = ["board"]
     search_fields = ["board", "title"]
 
     def get_queryset(self):
