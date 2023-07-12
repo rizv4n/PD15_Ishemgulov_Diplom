@@ -3,12 +3,13 @@ from rest_framework import permissions, filters
 from rest_framework.pagination import LimitOffsetPagination
 
 from goals.models.category import GoalCategory
+from goals.permissions import CategoryPermissions
 from goals.serializers.category import GoalCategorySerializer, GoalCategoryCreateSerializer
 
 
 class GoalCategoryCreateView(CreateAPIView):
     model = GoalCategory
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [CategoryPermissions]
     serializer_class = GoalCategoryCreateSerializer
 
 
@@ -21,23 +22,25 @@ class GoalCategoryListView(ListAPIView):
         filters.OrderingFilter,
         filters.SearchFilter,
     ]
-    ordering_fields = ["title", "created"]
+    ordering_fields = ["board", "title", "created"]
     ordering = ["title"]
-    search_fields = ["title"]
+    search_fields = ["board", "title"]
 
     def get_queryset(self):
         return GoalCategory.objects.filter(
-            user=self.request.user, is_deleted=False
+            board__participants__user=self.request.user, is_deleted=False
         )
 
 
 class GoalCategoryView(RetrieveUpdateDestroyAPIView):
     model = GoalCategory
     serializer_class = GoalCategorySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [CategoryPermissions]
 
     def get_queryset(self):
-        return GoalCategory.objects.filter(user=self.request.user, is_deleted=False)
+        return GoalCategory.objects.filter(
+            board__participants__user=self.request.user, is_deleted=False
+        )
 
     def perform_destroy(self, instance):
         instance.is_deleted = True

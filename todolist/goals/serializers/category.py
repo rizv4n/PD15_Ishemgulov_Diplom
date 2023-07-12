@@ -20,3 +20,8 @@ class GoalCategorySerializer(serializers.ModelSerializer):
         model = GoalCategory
         fields = "__all__"
         read_only_fields = ("id", "created", "updated", "user")
+
+    def update(self, instance, validated_data):
+        if instance.board is not None:
+            validated_data.pop("board", None)
+        return super().update(instance, validated_data)

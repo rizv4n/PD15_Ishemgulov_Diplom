@@ -1,22 +1,22 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework import permissions, filters
 from rest_framework.pagination import LimitOffsetPagination
 
 from goals.filters import GoalDateFilter
 from goals.models.goal import Goal
+from goals.permissions import GoalPermissions
 from goals.serializers.goal import GoalCreateSerializer, GoalSerializer
 
 
 class GoalCreateView(CreateAPIView):
     model = Goal
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [GoalPermissions]
     serializer_class = GoalCreateSerializer
 
 
 class GoalListView(ListAPIView):
     model = Goal
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [GoalPermissions]
     serializer_class = GoalSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = [
@@ -34,7 +34,7 @@ class GoalListView(ListAPIView):
 class GoalView(RetrieveUpdateDestroyAPIView):
     model = Goal
     serializer_class = GoalSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [GoalPermissions]
 
     def get_queryset(self):
         return Goal.objects.filter(user=self.request.user, status__in=[1, 2, 3])

@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from core.serializers import UserRetrieveSerializer
 from goals.models.goal import Goal
-from goals.models.category import GoalCategory
 
 
 class GoalCreateSerializer(serializers.ModelSerializer):
@@ -25,7 +24,6 @@ class GoalCreateSerializer(serializers.ModelSerializer):
 
 class GoalSerializer(serializers.ModelSerializer):
     user = UserRetrieveSerializer(read_only=True)
-    # category = serializers.PrimaryKeyRelatedField(queryset=GoalCategory.objects.all(), source='category.title')
 
     class Meta:
         model = Goal
