@@ -4,7 +4,7 @@ from rest_framework import permissions, filters
 from rest_framework.pagination import LimitOffsetPagination
 
 from goals.models.board import Board
-from goals.models.goal import Goal
+from goals.models.goal import Goal, Status
 from goals.permissions import BoardPermissions
 from goals.serializers.board import BoardCreateSerializer, BoardSerializer, BoardListSerializer
 
@@ -46,6 +46,6 @@ class BoardView(RetrieveUpdateDestroyAPIView):
             instance.save()
             instance.categories.update(is_deleted=True)
             Goal.objects.filter(category__board=instance).update(
-                status=Goal.Status.archived
+                status=Status.archived
             )
         return instance

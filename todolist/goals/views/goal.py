@@ -1,9 +1,10 @@
+from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.pagination import LimitOffsetPagination
 
 from goals.filters import GoalDateFilter
-from goals.models.goal import Goal
+from goals.models.goal import Goal, Status
 from goals.permissions import GoalPermissions
 from goals.serializers.goal import GoalCreateSerializer, GoalSerializer
 
@@ -40,6 +41,7 @@ class GoalView(RetrieveUpdateDestroyAPIView):
         return Goal.objects.filter(user=self.request.user, status__in=[1, 2, 3])
 
     def perform_destroy(self, instance):
-        instance.is_deleted = True
-        instance.save()
+        with transaction.atomic():
+            instance.status = Status.archived
+            instance.save()
         return instance
