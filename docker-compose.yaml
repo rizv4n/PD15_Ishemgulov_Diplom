@@ -44,7 +44,7 @@ services:
       - ./todolist:/app
 
   front:
-    image: sermalenk/skypro-front:lesson-36
+    image: sermalenk/skypro-front:lesson-38
     restart: on-failure
     ports:
      - "80:80"
