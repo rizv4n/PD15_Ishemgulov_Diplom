@@ -72,7 +72,7 @@ class Command(BaseCommand):
                     num += 1
 
         def get_cats(user_id):
-            categories = GoalCategory.objects.filter(user=user_id)
+            categories = GoalCategory.objects.filter(user=user_id, is_deleted=False)
             message = 'Выберите категорию:'
             tg_client.send_message(chat_id, message)
             num = 1
