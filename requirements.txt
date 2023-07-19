@@ -10,3 +10,4 @@ social-auth-core==4.4.2
 requests==2.31.0
 marshmallow==3.19.0
 marshmallow-dataclass==8.5.14
+python-telegram-bot==20.4

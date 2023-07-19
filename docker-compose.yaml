@@ -3,10 +3,7 @@ version: "3.9"
 services:
   db:
     image: postgres:latest
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+    env_file: .env
     healthcheck:
       test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
       interval: 5s
@@ -25,7 +22,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: python todolist/manage.py migrate
+    command: python manage.py migrate
 
   api:
     build: .
@@ -42,6 +39,18 @@ services:
       - "8000:8000"
     volumes:
       - ./todolist:/app
+
+  bot:
+    build: .
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    command: python manage.py runbot
 
   front:
     image: sermalenk/skypro-front:lesson-38
