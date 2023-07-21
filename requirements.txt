@@ -11,3 +11,4 @@ requests==2.31.0
 marshmallow==3.19.0
 marshmallow-dataclass==8.5.14
 python-telegram-bot==20.4
+pytest==7.4.0
